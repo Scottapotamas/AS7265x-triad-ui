@@ -1,0 +1,1 @@
+This icons folder and it's contents will be copied on build. Only use it for application icons.
