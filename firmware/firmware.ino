@@ -31,9 +31,9 @@ eui_interface_t serial_comms = EUI_INTERFACE_CB( &serial_write, &eui_callback );
 eui_message_t tracked_variables[] = 
 {
   // Misc stats etc
-  EUI_CHAR_RO_ARRAY("name", nickname),
+  EUI_CHAR_ARRAY_RO("name", nickname),
   EUI_UINT32( "rate", loop_time),
-  EUI_UINT8_RO_ARRAY( "version",  version_info ),
+  EUI_UINT8_ARRAY_RO( "version",  version_info ),
 
   // User configurable
   EUI_UINT8("gain", gain_setting),
@@ -44,7 +44,7 @@ eui_message_t tracked_variables[] =
   EUI_UINT8( "indicator", indicator_setting ),
   
   // Sensor Data
-  EUI_FLOAT_RO_ARRAY( "spec", spectral_data ),
+  EUI_FLOAT_ARRAY_RO( "spec", spectral_data ),
   EUI_FLOAT_RO( "temp", temperature ),
 };
 
