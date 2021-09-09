@@ -1,17 +1,16 @@
 import 'source-map-support/register'
 
-import { BrowserWindow, Menu, app } from 'electron'
+import { BrowserWindow, Menu, app, nativeTheme } from 'electron'
 import {
-  ExternallyResolvedPromise,
+  Deferred,
   createdNewUIWindow,
-  fetchSystemDarkModeFromWinManager,
   getElectricWindow,
-  getSettingFromWinManager,
+  getUserDarkMode,
   installDevTools,
-  setSettingFromWinManager,
+  setUserDarkMode,
+  setupDarkModeListenersWindowManager,
   setupElectricUIHandlers,
-  setupSettingsListenersWindowManager,
-  setupSettingsPathing,
+  setupSaveDialogInvoker,
 } from '@electricui/utility-electron'
 
 import { format as formatUrl } from 'url'
@@ -23,9 +22,11 @@ const allowDevTools = process.env.ALLOW_DEV_TOOLS === 'true' || isDevelopment
 // Disallow process reuse
 app.allowRendererProcessReuse = false
 
-// Setup persistent settings helpers
-setupSettingsPathing()
-setupSettingsListenersWindowManager()
+// Setup dark mode listeners
+setupDarkModeListenersWindowManager()
+
+// Setup file saving dialog handlers
+setupSaveDialogInvoker()
 
 // global reference to mainWindows (necessary to prevent window from being garbage collected)
 let mainWindows: Array<BrowserWindow> = []
@@ -36,19 +37,24 @@ function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       devTools: allowDevTools, // Only allow devTools in development mode
-      v8CacheOptions: 'bypassHeatCheckAndEagerCompile', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
+      v8CacheOptions: 'bypassHeatCheck', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
+      enableBlinkFeatures: 'CSSColorSchemeUARendering', // Enable dark scrollbars in dark mode
     },
     minHeight: 680,
     minWidth: 1200,
     height: 680,
     width: 1200,
-    // frame: false
+    title: 'Electric UI',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
     show: false, // The window is shown once the transport manager is ready
+    // Point at the application icon to use, on Windows use the .ico, other platforms use the png
+    icon: pathJoin(
+      __dirname,
+      process.platform === 'win32' ? '/build/icon.ico' : '/build/icon.png',
+    ),
   })
-
-  window.removeMenu()
 
   if (isDevelopment) {
     window.loadURL(
@@ -120,11 +126,11 @@ app.on('ready', () => {
   const firstWindow = createMainWindow()
   mainWindows.push(firstWindow) // add a new window
 
-  const firstWindowReady = new ExternallyResolvedPromise()
+  const firstWindowReady = new Deferred()
   firstWindow.once('ready-to-show', firstWindowReady.resolve)
 
   // Wait until the transport and the window is ready before showing the first window
-  Promise.all([firstWindowReady.getPromise(), transportReady])
+  Promise.all([firstWindowReady.promise, transportReady])
     .then(() => {
       firstWindow.show()
     })
@@ -209,23 +215,23 @@ const template = [
       {
         label: 'Toggle Dark Mode',
         click: () => {
-          const userDark = getSettingFromWinManager('darkMode', null)
+          const userDark = getUserDarkMode()
 
           if (userDark === null) {
             // if the user mode is not set, set the dark mode to the opposite of the current system dark mode
-            const sys = fetchSystemDarkModeFromWinManager()
+            const sys = nativeTheme.shouldUseDarkColors
 
-            setSettingFromWinManager('darkMode', !sys)
+            setUserDarkMode(!sys)
             return
           }
 
-          setSettingFromWinManager('darkMode', !userDark)
+          setUserDarkMode(!userDark)
         },
       },
       {
         label: 'Use system dark mode',
         click: () => {
-          setSettingFromWinManager('darkMode', null)
+          setUserDarkMode(null)
         },
       },
 
@@ -252,10 +258,6 @@ const template = [
         {
           label: 'DevTools',
           submenu: [
-            { role: 'reload' },
-            { role: 'forcereload' },
-            { type: 'separator' },
-
             { role: 'toggledevtools' },
             {
               label: 'Show Transport Window',

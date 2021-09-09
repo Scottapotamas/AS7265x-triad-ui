@@ -1,10 +1,7 @@
-import {
-  ChartContainer,
-  LineChart,
-  RealTimeDomain,
-  TimeAxis,
-  VerticalAxis,
-} from '@electricui/components-desktop-charts'
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
+import { render } from 'react-dom'
+import { navigate } from '@electricui/utility-electron'
 
 import {
   Card,
@@ -13,12 +10,20 @@ import {
   Button as BlueprintButton,
   HTMLTable,
 } from '@blueprintjs/core'
-
 import { Composition, Box } from 'atomic-layout'
+
+import {
+  ChartContainer,
+  LineChart,
+  RealTimeDomain,RealTimeSlicingDomain,
+  TimeAxis,
+  VerticalAxis,
+  HorizontalAxis,
+  BarChart
+} from '@electricui/components-desktop-charts'
 import { IntervalRequester } from '@electricui/components-core'
 import { MessageDataSource } from '@electricui/core-timeseries'
-import React from 'react'
-import { RouteComponentProps } from '@reach/router'
+import { PolledCSVLogger } from '@electricui/components-desktop-blueprint-loggers'
 import {
   Slider,
   ProgressBar,
@@ -28,8 +33,6 @@ import {
   NumberInput,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
-import { render } from 'react-dom'
-import { navigate } from '@electricui/utility-electron'
 
 const layoutDescription = `
   Sensor Sparklines
@@ -55,7 +58,7 @@ const SparklineStats = () => {
       <ChartContainer height={100}>
         <LineChart dataSource={tempDataSource} maxItems={1000} />
 
-        <RealTimeDomain window={30000} yMin={10} yMax={40} delay={1000} />
+        <RealTimeDomain window={15000} yMin={20} yMax={40} delay={1000} />
       </ChartContainer>
     </React.Fragment>
   )
@@ -137,8 +140,7 @@ const SensorSettings = () => {
 
         <Composition templateCols="1fr 1fr" alignItems="center" gapCol={20}>
           <h4>Samples:</h4>
-
-          <NumberInput accessor="integrate" style={{ maxWidth: '150px' }} />
+            <NumberInput accessor="integrate" />
         </Composition>
         <Box></Box>
 
@@ -235,7 +237,38 @@ const colors = [
   Colors.ORANGE3,
   Colors.RED3,
   Colors.VERMILION3,
+  Colors.ROSE4,
+  Colors.SEPIA5,
+  Colors.LIGHT_GRAY1,
+  Colors.GRAY2,
+  Colors.DARK_GRAY1,
 ]
+
+const wavelengths = [
+  410,
+  435,
+  460,
+  485,
+  510,
+  535,
+  560,
+  585,
+  610,
+  645,
+  680,
+  705,
+  730,
+  760,
+  810,
+  860,
+  900,
+  940,
+]
+
+const range = (start: number, end: number) =>
+  [...Array(end - start + 1)].map((_, indx) => start + indx)
+
+const channel_num: number = 17
 
 export const OverviewPage = (props: RouteComponentProps) => {
   return (
@@ -249,43 +282,41 @@ export const OverviewPage = (props: RouteComponentProps) => {
       >
         {Areas => (
           <>
+          
             <Areas.Sensor>
               <Card>
-                <ChartContainer height={700}>
-                  {Array.from(new Array<Number>(18)).map((_, index) => (
+              
+                <ChartContainer height={600}>
+                <BarChart dataSource={spectraDataSource} columns={channel_num} barGap={0} color={colors}  />
+                <HorizontalAxis
+                  label="Wavelength (nm)"
+                  tickValues={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]}
+                  tickFormat={i => `${wavelengths[i]}`}
+                />                 
+                <VerticalAxis />
+                <RealTimeSlicingDomain window={10000}  />
+              
+                  {/* yMin={0} yMax={600} */}
+                  
+                  {/* <RealTimeDomain window={10000} delay={100} /> */}
+                  {/* <TimeAxis /> */}
+                   {/*                    
+                   {range(0, channel_num).map((_, index) => (
                     <LineChart
                       dataSource={spectraDataSource}
-                      accessor={state => state.spec[index]}
-                      maxItems={1000}
+                      accessor={event => event[index]}
                       color={colors[index]}
                     />
-                  ))}
-                  <RealTimeDomain window={10000} delay={80} yMin={0} />
-                  <TimeAxis />
-                  <VerticalAxis />
+                  ))} 
+                */}
                 </ChartContainer>
+                
               </Card>
             </Areas.Sensor>
 
             <Areas.Sparklines>
               <SparklineStats />
             </Areas.Sparklines>
-
-            <Areas.Bars>
-              <Card>
-                {Array.from(new Array<Number>(18)).map((_, index) => (
-                  <React.Fragment>
-                    <ProgressBar
-                      accessor={state => state.spec[index]}
-                      min={0}
-                      max={255}
-                      // style={{ backgroundColor: '#0066cc' }}
-                    />
-                    <br />
-                  </React.Fragment>
-                ))}
-              </Card>
-            </Areas.Bars>
 
             <Areas.Config>
               <Card>
