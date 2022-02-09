@@ -1,7 +1,9 @@
 # AS7265x Triad Spectroscopy UI
-Realtime desktop user interface for playing with the [Sparkfun Triad Spectroscopy](https://www.sparkfun.com/products/15050) sensor.
+A simple realtime desktop user interface for playing with the [Sparkfun Triad Spectroscopy](https://www.sparkfun.com/products/15050) sensor.
 
-$TODO Add image/gif here
+![hardware-img](docs/hardware-img.jpg)
+
+![ui-screenshot](docs/ui-screenshot.png)
 
 ## Hardware
 
@@ -23,7 +25,19 @@ Change instances of `delay(AS7265X_POLLING_DELAY)` to `delayMicroseconds(AS7265X
 
 Flash the `firmware/firmware.ino` sketch from this repo to your hardware and connect with the UI.
 
+### Sensor Shroud
+
+A 3D printed sensor shroud/mount is in `/mechanical`, along with exported STEP file in `/mechanical/manufacturing`. 
+
+>  The `as7265x.SLDPRT` was drawn roughly from the part on hand and shouldn't be treated as accurate to the Sparkfun breakout.
+
 ## User Interface
 
-Powered by Electric UI. To run, ensure you've got the `arc` tooling setup on your computer, and then run `arc start` from `/interface`.
+Powered by Electric UI. 
+
+To run the UI as a sandbox, ensure you've got the `arc` tooling setup on your computer, your shell is in `/interface` then run
+
+- `arc install` to pull the project deps/etc
+- then `arc start` to launch the sandbox.
+- `arc build` can be used to generate 'production' bundles for the OS running the build.
 
