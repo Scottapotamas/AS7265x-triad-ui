@@ -108,7 +108,7 @@ export const SensorSettings = () => {
           >
             Ultraviolet
           </Checkbox>
-          {/* <br /> */}
+
           <Popover content={<LEDCurrentSettings />}>
             <BlueprintButton fill text="LED Current" icon="settings" />
           </Popover>
