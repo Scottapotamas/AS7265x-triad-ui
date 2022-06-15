@@ -22,8 +22,10 @@ import {
   VerticalAxis,
   HorizontalAxis,
   BarChart,
+  EventColumnDataSource,
+  PolledColumnDataSource,
 } from '@electricui/components-desktop-charts'
-import { IntervalRequester } from '@electricui/components-core'
+import { IntervalRequester, useHardwareState } from '@electricui/components-core'
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { PolledCSVLogger } from '@electricui/components-desktop-blueprint-loggers'
 import {
@@ -60,97 +62,32 @@ export const SpectraWavelengths = [
 ]
 
 export const LoggingControls = (props: RouteComponentProps) => {
+
+  const spectralData: number[] | null = useHardwareState('spec')
+  const numWavelengths: number = spectralData!.length
+
+  let columnFields : PolledColumnDataSource[] = []
+
+  if( numWavelengths )
+  {
+    for(let wavelength = 0; wavelength < numWavelengths; wavelength++ )
+    {
+      const field: PolledColumnDataSource = {
+        dataSource: spectraDataSource,
+        column: `${SpectraWavelengths[wavelength]}nm`,
+        accessor: event => event[wavelength],
+      }
+  
+      columnFields.push(field)
+    }
+  
+  }
+
   return (
     <React.Fragment>
       <PolledCSVLogger
         interval={50}
-        columns={[
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[0]}nm`,
-            accessor: event => event[0],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[1]}nm`,
-            accessor: event => event[1],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[2]}nm`,
-            accessor: event => event[2],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[3]}nm`,
-            accessor: event => event[3],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[4]}nm`,
-            accessor: event => event[4],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[5]}nm`,
-            accessor: event => event[5],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[6]}nm`,
-            accessor: event => event[6],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[7]}nm`,
-            accessor: event => event[7],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[8]}nm`,
-            accessor: event => event[8],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[9]}nm`,
-            accessor: event => event[9],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[10]}nm`,
-            accessor: event => event[10],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[11]}nm`,
-            accessor: event => event[11],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[12]}nm`,
-            accessor: event => event[12],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[13]}nm`,
-            accessor: event => event[13],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[14]}nm`,
-            accessor: event => event[14],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[15]}nm`,
-            accessor: event => event[15],
-          },
-          {
-            dataSource: spectraDataSource,
-            column: `${SpectraWavelengths[16]}nm`,
-            accessor: event => event[16],
-          },
-        ]}
+        columns={columnFields}
       />
     </React.Fragment>
   )
