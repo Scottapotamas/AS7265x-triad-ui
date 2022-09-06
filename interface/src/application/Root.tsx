@@ -7,7 +7,10 @@ import {
 import { LocationProvider, Router } from '@reach/router'
 
 import { ConnectionPage } from './pages/ConnectionPage'
-import { DarkModeChartThemeProvider } from '@electricui/components-desktop-charts'
+import {
+  DarkModeChartThemeProvider,
+  AcceptableDeviceContinuityProvider,
+} from '@electricui/components-desktop-charts'
 import { DeviceIDBridgeContext } from '@electricui/components-desktop-charts'
 import { DeviceLoadingPage } from './pages/DeviceLoadingPage'
 import { DeviceManagerProxy } from '@electricui/core-device-manager-proxy'
@@ -19,6 +22,9 @@ import { RefreshIndicator } from '@electricui/components-desktop-blueprint'
 import { Store } from 'redux'
 import { WrapDeviceContextWithLocation } from './pages/WrapDeviceContextWithLocation'
 import { history } from '@electricui/utility-electron'
+
+import { FocusStyleManager } from '@blueprintjs/core'
+FocusStyleManager.onlyShowFocusOnTabs()
 
 interface RootProps {
   store: Store
@@ -35,17 +41,19 @@ export class Root extends React.Component<RootProps> {
             <DarkModeWrapper>
               <DeviceIDBridgeContext>
                 <DarkModeChartThemeProvider>
-                  <LocationProvider history={history}>
-                    <Router>
-                      <ConnectionPage path="/" />
-                      <WrapDeviceContextWithLocation path="device_loading/:deviceID/">
-                        <DeviceLoadingPage path="/" />
-                      </WrapDeviceContextWithLocation>
-                      <WrapDeviceContextWithLocation path="devices/:deviceID/">
-                        <DevicePages path="*" />
-                      </WrapDeviceContextWithLocation>
-                    </Router>
-                  </LocationProvider>
+                  <AcceptableDeviceContinuityProvider>
+                    <LocationProvider history={history}>
+                      <Router>
+                        <ConnectionPage path="/" />
+                        <WrapDeviceContextWithLocation path="device_loading/:deviceID/">
+                          <DeviceLoadingPage path="/" />
+                        </WrapDeviceContextWithLocation>
+                        <WrapDeviceContextWithLocation path="devices/:deviceID/">
+                          <DevicePages path="*" />
+                        </WrapDeviceContextWithLocation>
+                      </Router>
+                    </LocationProvider>
+                  </AcceptableDeviceContinuityProvider>
                 </DarkModeChartThemeProvider>
               </DeviceIDBridgeContext>
             </DarkModeWrapper>

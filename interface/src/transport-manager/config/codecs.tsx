@@ -32,8 +32,3 @@ export class LEDCodec extends Codec<LEDSettings> {
     return settings
   }
 }
-
-// Create the instances of the codecs
-export const customCodecs = [
-  new LEDCodec(), // An instance of the LEDSettings Codec
-]

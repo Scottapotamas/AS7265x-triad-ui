@@ -1,5 +1,3 @@
-import 'source-map-support/register'
-
 import { BrowserWindow, Menu, app, nativeTheme } from 'electron'
 import {
   Deferred,
@@ -18,9 +16,6 @@ import { join as pathJoin } from 'path'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 const allowDevTools = process.env.ALLOW_DEV_TOOLS === 'true' || isDevelopment
-
-// Disallow process reuse
-app.allowRendererProcessReuse = false
 
 // Setup dark mode listeners
 setupDarkModeListenersWindowManager()
@@ -253,7 +248,7 @@ const template = [
         : [{ type: 'separator' }, { role: 'close' }]),
     ],
   },
-  ...(process.env.NODE_ENV === 'development'
+  ...(allowDevTools
     ? [
         {
           label: 'DevTools',
