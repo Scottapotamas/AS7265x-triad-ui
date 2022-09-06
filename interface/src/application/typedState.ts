@@ -9,10 +9,19 @@ declare global {
   interface ElectricUIDeveloperState {
     [messageID: string]: any
 
-    // Example messageID typings
-    led_blink: number
-    led_state: number
-    lit_time: number
+    readonly name: string
+    readonly rate: number
+    readonly version: [deviceType: number, hardwareVersion: number, majorFirmwareVersion: number, minorFirmwareVersion: number, patchFirmwareVersion: number]
+
+    gain: number,
+    mode: number,
+    integrate: number,
+    bulb: [number, number, number],
+    current: [number, number, number],
+    indicator: number,
+
+    spec: number[]
+    temp: number
   }
 }
 

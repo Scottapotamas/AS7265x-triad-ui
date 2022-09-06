@@ -9,9 +9,9 @@ export const SensorInfo = () => {
       <Composition templateCols="1fr 1fr" gap={10} style={{ height: '100%' }}>
         <Box>
           <h4 style={{ marginTop: '0em' }}>Operation</h4>
-          Mode: <Printer accessor={state => state.mode} />
+          Mode: <Printer accessor={state => state.mode ?? 'mode unset'} />
           <br />
-          Temp: <Printer accessor={state => state.temp.toFixed(1)} /> °C
+          Temp: <Printer accessor={state => state.temp} precision={1}/> °C
         </Box>
 
         <Box>

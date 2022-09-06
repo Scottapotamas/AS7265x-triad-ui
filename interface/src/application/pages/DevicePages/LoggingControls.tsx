@@ -62,9 +62,8 @@ export const SpectraWavelengths = [
 ]
 
 export const LoggingControls = (props: RouteComponentProps) => {
-
-  const spectralData: number[] | null = useHardwareState('spec')
-  const numWavelengths: number = spectralData!.length
+  const spectralData = useHardwareState('spec')
+  const numWavelengths: number = spectralData?.length ?? 0
 
   let columnFields : PolledColumnDataSource[] = []
 
